@@ -1,5 +1,7 @@
 package federicolepore.u5w19d4.services;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import federicolepore.u5w19d4.entities.BlogPost;
 import federicolepore.u5w19d4.exceptions.BadRequestException;
 import federicolepore.u5w19d4.exceptions.NotFoundException;
@@ -11,7 +13,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -19,9 +24,11 @@ import java.util.UUID;
 public class BlogPostService {
 
     private final BlogPostRepository bpRepo;
+    private final Cloudinary cloudinaryUploader;
 
-    public BlogPostService(BlogPostRepository bpRepo) {
+    public BlogPostService(BlogPostRepository bpRepo, Cloudinary cloudinaryUploader) {
         this.bpRepo = bpRepo;
+        this.cloudinaryUploader = cloudinaryUploader;
     }
 
 
@@ -41,6 +48,7 @@ public class BlogPostService {
         if (size > 100) size = 10;
         if (size < 0) size = 0;
         if (page < 0) page = 0;
+        // imposto la pagina per determinare quanti risultati ritornare al frontend e comme ordinarli
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
         return this.bpRepo.findAll(pageable);
     }
@@ -53,6 +61,7 @@ public class BlogPostService {
 
     // 4
     public BlogPost findByIdAndUpdate(UUID id, BlogPostPayload body) {
+
         BlogPost found = this.findById(id);
         if (!found.getTitolo().equals(body.getTitolo())) {
             if (this.bpRepo.existsByTitolo(body.getTitolo()))
@@ -76,4 +85,36 @@ public class BlogPostService {
         this.bpRepo.delete(found);
     }
 
+
+    // 6
+    public BlogPost coverUpload(MultipartFile file, UUID blogPostId) {
+        BlogPost toUpload = this.findById(blogPostId);
+        String url;
+        try {
+            Map result = cloudinaryUploader.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+            url = (String) result.get("secure_url");
+            System.out.println(url);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        toUpload.setCoverUrl(url);
+        bpRepo.save(toUpload);
+
+        return toUpload;
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+

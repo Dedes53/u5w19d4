@@ -29,7 +29,6 @@ public class Author {
     private String avatarUrl;
 
     public Author(String nome, String cognome, String email, LocalDate dataDiNascita) {
-        this.id = UUID.randomUUID();
         this.nome = nome;
         this.cognome = cognome;
         this.email = email;

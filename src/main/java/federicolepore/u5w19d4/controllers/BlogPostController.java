@@ -7,6 +7,7 @@ import federicolepore.u5w19d4.services.BlogPostService;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
@@ -51,22 +52,52 @@ public class BlogPostController {
 
     // 3 GET http://localhost:port/blogPosts/{blogPostID} -> ritorna uno specifico blogPost
     @GetMapping("/{blodPostId}")
-    public BlogPost getById(@PathVariable UUID id) {
-        return this.blogPostService.findById(id);
+    public BlogPost getById(@PathVariable UUID blodPostId) {
+        return this.blogPostService.findById(blodPostId);
     }
 
     // 4 PUT http://localhost:port/blogPosts/{blogPostID} (+payload) -> aggiorna il blogPost
     @PutMapping("/{blodPostId}")
-    public BlogPost findByIdAndUpdate(@PathVariable UUID id, @RequestBody BlogPostPayload body) {
-        return this.blogPostService.findByIdAndUpdate(id, body);
+    public BlogPost findByIdAndUpdate(@PathVariable UUID blodPostId, @RequestBody BlogPostPayload body) {
+        return this.blogPostService.findByIdAndUpdate(blodPostId, body);
     }
 
     // 5
     @DeleteMapping("/{blodPostId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void findByIdAndDelete(@PathVariable UUID id) {
-        this.blogPostService.findByIdAndDelete(id);
+    public void findByIdAndDelete(@PathVariable UUID blodPostId) {
+        this.blogPostService.findByIdAndDelete(blodPostId);
     }
 
 
+    // 6 PATCH http://localhost:3001/blogPosts/{blogPostID}/cover
+    @PatchMapping("/{blodPostId}/cover")
+    public BlogPost upLoadCover(@RequestParam("cover") MultipartFile file, @PathVariable UUID blodPostId) {
+        System.out.println(file.getOriginalFilename());
+        System.out.println(file.getSize());
+        System.out.println(file.getContentType());
+
+        return this.blogPostService.coverUpload(file, blodPostId);
+    }
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

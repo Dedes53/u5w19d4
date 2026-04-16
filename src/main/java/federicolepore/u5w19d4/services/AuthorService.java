@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 @Slf4j
@@ -67,7 +68,7 @@ public class AuthorService {
 
         Author found = this.findById(id);
         // verifico che la mail non sia doppia con un altro autore già in uso
-        if (!found.getEmail().equals(body.getEmail())) {
+        if (Objects.equals(found.getEmail(), body.getEmail())) {
             if (this.aRepo.existsByEmail(body.getEmail()))
                 throw new BadRequestException("L'indirizzo email " + body.getEmail() + "è già in uso");
         }

@@ -54,23 +54,23 @@ public class AuthorController {
 
     // 3. GET http://localhost:3001/authors/{authorId}
     @GetMapping("/{authorId}")
-    public Author getById(@PathVariable UUID id) {
-        return this.authorService.findById(id);
+    public Author getById(@PathVariable UUID authorId) {
+        return this.authorService.findById(authorId);
     }
 
 
     // 4. PUT http://localhost:3001/authors/{authorId} (+ req.body)
     @PutMapping("/{authorId}")
-    public Author getByIdAndUpdate(@PathVariable UUID id, @RequestBody AuthorPayload body) {
-        return this.authorService.findByIdAndUpdate(id, body);
+    public Author getByIdAndUpdate(@PathVariable UUID authorId, @RequestBody AuthorPayload body) {
+        return this.authorService.findByIdAndUpdate(authorId, body);
     }
 
 
     // 5. DELETE http://localhost:3001/authors/{authorId}
     @DeleteMapping("/{authorId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void getByIdAndDelete(@PathVariable UUID id) {
-        this.authorService.findByIdAndDelete(id);
+    public void getByIdAndDelete(@PathVariable UUID authorId) {
+        this.authorService.findByIdAndDelete(authorId);
     }
 
 
