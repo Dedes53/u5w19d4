@@ -2,12 +2,19 @@ package federicolepore.u5w19d4.controllers;
 
 
 import federicolepore.u5w19d4.entities.Author;
+import federicolepore.u5w19d4.exceptions.ValidationException;
+import federicolepore.u5w19d4.payloads.AuthorDTO;
 import federicolepore.u5w19d4.payloads.AuthorPayload;
+import federicolepore.u5w19d4.payloads.NewAuthorDTO;
 import federicolepore.u5w19d4.services.AuthorService;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -24,8 +31,14 @@ public class AuthorController {
     // 1. POST http://localhost:3001/authors (+ req.body)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Author save(@RequestBody AuthorPayload body) {
-        return this.authorService.save(body);
+    public NewAuthorDTO save(@RequestBody @Validated AuthorDTO body, BindingResult validationResult) {
+
+        if (validationResult.hasErrors()) {
+            List<String> errors = validationResult.getFieldErrors().stream().map(error -> error.getDefaultMessage()).toList();
+            throw new ValidationException(errors);
+        }
+        Author newAuthor = this.authorService.save(body);
+        return new NewAuthorDTO((newAuthor.getId()));
     }
 
 
@@ -61,4 +74,14 @@ public class AuthorController {
     }
 
 
+    // 6 PATCH http://localhost:3001/authors/{authorId}/avatar
+    @PatchMapping("/{authorId}/avatar")
+    public Author uploadAvatar(@RequestParam("profile_picture") MultipartFile file, @PathVariable UUID authorId) {
+
+        System.out.println(file.getOriginalFilename());
+        System.out.println(file.getSize());
+        System.out.println(file.getContentType());
+
+        return this.authorService.avatarUpload(file, authorId);
+    }
 }

@@ -1,9 +1,12 @@
 package federicolepore.u5w19d4.services;
 
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import federicolepore.u5w19d4.entities.Author;
 import federicolepore.u5w19d4.exceptions.BadRequestException;
 import federicolepore.u5w19d4.exceptions.NotFoundException;
+import federicolepore.u5w19d4.payloads.AuthorDTO;
 import federicolepore.u5w19d4.payloads.AuthorPayload;
 import federicolepore.u5w19d4.repositories.AuthorRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +15,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.Map;
 import java.util.UUID;
 
 @Slf4j
@@ -20,17 +26,19 @@ import java.util.UUID;
 public class AuthorService {
 
     private final AuthorRepository aRepo;
+    private final Cloudinary cloudinaryUploader;
 
-    public AuthorService(AuthorRepository aRepo) {
+    public AuthorService(AuthorRepository aRepo, Cloudinary cloudinaryUploader) {
         this.aRepo = aRepo;
+        this.cloudinaryUploader = cloudinaryUploader;
     }
 
 
     //1
-    public Author save(AuthorPayload body) {
-        if (this.aRepo.existsByEmail(body.getEmail()))
-            throw new BadRequestException("L'indirizzo email " + body.getEmail() + "è già in uso");
-        Author a = new Author(body.getNome(), body.getCognome(), body.getEmail(), body.getDataDiNascita());
+    public Author save(AuthorDTO body) {
+        if (this.aRepo.existsByEmail(body.email()))
+            throw new BadRequestException("L'indirizzo email " + body.email() + "è già in uso");
+        Author a = new Author(body.nome(), body.cognome(), body.email(), body.dataDiNascita());
         this.aRepo.save(a);
         return a;
     }
@@ -80,6 +88,33 @@ public class AuthorService {
     public void findByIdAndDelete(UUID id) {
         Author found = this.findById(id);
         this.aRepo.delete(found);
+    }
+
+
+    // 6
+    public Author avatarUpload(MultipartFile file, UUID authorId) {
+
+        // 1 - eventuali controlli sui file: dimensioni, tipo ecc
+        // 2 - trovo l'autore a sui cui effettuare l'upload
+        Author toUpload = this.findById(authorId);
+
+        //3 - effettivo upload del file su Cloudinary
+        String url;
+        try {
+            Map result = cloudinaryUploader.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+            url = (String) result.get("secure_url");
+            System.out.println(url);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        //4 - settare l'url all'avatar e salvare la modifica
+        toUpload.setAvatarUrl(url);
+        aRepo.save(toUpload);
+
+        // 5 - ritorno il profilo modificato
+        return toUpload;
+
     }
 
 
