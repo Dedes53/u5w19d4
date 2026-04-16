@@ -15,22 +15,21 @@ import java.time.LocalDateTime;
 // qui ci saranno n metodi, ognuno dedicato alla gestione di un tipo specifico di eccezione
 public class ErrorsHandler {
 
-    @ExceptionHandler(NotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND) // 400
+    @ExceptionHandler(BadRequestException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorsPayload handleBadRequest(BadRequestException ex) {
         return new ErrorsPayload(ex.getMessage(), LocalDateTime.now());
     }
 
-
     @ExceptionHandler(NotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND) //404
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorsPayload handleNotFoundEx(NotFoundException ex) {
         return new ErrorsPayload(ex.getMessage(), LocalDateTime.now());
     }
 
 
     @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR) //500
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorsPayload handleGenericEx(Exception ex) {
         return new ErrorsPayload("Aiaiai sto giro è colpa mia", LocalDateTime.now());
     }

@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.UUID;
 
 public interface BlogPostRepository extends JpaRepository<BlogPost, UUID> {
-    boolean existByTitolo(String titolo);
+    boolean existsByTitolo(String titolo);
 }

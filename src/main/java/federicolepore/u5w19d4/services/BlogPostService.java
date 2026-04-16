@@ -28,7 +28,7 @@ public class BlogPostService {
     // METODI DA RICHIAMARE NEL CONTROLLER PER CRUD
     //1
     public BlogPost save(BlogPostPayload body) {
-        if (this.bpRepo.existByTitolo(body.getTitolo()))
+        if (this.bpRepo.existsByTitolo(body.getTitolo()))
             throw new BadRequestException("Esiste già un post con il titolo: " + body.getTitolo());
         BlogPost b = new BlogPost(body.getTitolo(), body.getContenuto(), body.getTempoDiLettura(), body.getAuthorId());
         this.bpRepo.save(b);
@@ -55,7 +55,7 @@ public class BlogPostService {
     public BlogPost findByIdAndUpdate(UUID id, BlogPostPayload body) {
         BlogPost found = this.findById(id);
         if (!found.getTitolo().equals(body.getTitolo())) {
-            if (this.bpRepo.existByTitolo(body.getTitolo()))
+            if (this.bpRepo.existsByTitolo(body.getTitolo()))
                 throw new BadRequestException("Esiste già un post con il titolo: " + body.getTitolo());
         }
 

@@ -28,7 +28,7 @@ public class AuthorService {
 
     //1
     public Author save(AuthorPayload body) {
-        if (this.aRepo.existByEmail(body.getEmail()))
+        if (this.aRepo.existsByEmail(body.getEmail()))
             throw new BadRequestException("L'indirizzo email " + body.getEmail() + "è già in uso");
         Author a = new Author(body.getNome(), body.getCognome(), body.getEmail(), body.getDataDiNascita());
         this.aRepo.save(a);
@@ -60,7 +60,7 @@ public class AuthorService {
         Author found = this.findById(id);
         // verifico che la mail non sia doppia con un altro autore già in uso
         if (!found.getEmail().equals(body.getEmail())) {
-            if (this.aRepo.existByEmail(body.getEmail()))
+            if (this.aRepo.existsByEmail(body.getEmail()))
                 throw new BadRequestException("L'indirizzo email " + body.getEmail() + "è già in uso");
         }
         // modifico l'utente trovato
